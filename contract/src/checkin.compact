@@ -1,0 +1,59 @@
+pragma language_version 0.23;
+
+import CompactStandardLibrary;
+
+// Two states an event can be in.
+export enum EventState {
+  OPEN,
+  CLOSED
+}
+
+// --- Public ledger state ---
+// This is everything anyone on the network can see.
+export ledger eventState: EventState;
+export ledger attendeeCount: Counter;
+export ledger lastCheckIn: Bytes<32>;
+export ledger capacity: Uint<32>;
+
+constructor(maxAttendees: Uint<32>) {
+  eventState = EventState.OPEN;
+  attendeeCount.increment(0);
+  capacity = maxAttendees;
+}
+
+// The attendee's secret code never leaves their own machine.
+// It only ever exists inside the witness function below.
+witness secretCode(): Bytes<32>;
+
+// checkIn() lets someone prove "I hold a valid, unused secret code"
+// and increments the public attendee counter, without ever revealing
+// who they are or what their code is. Only a one-way commitment to
+// the code + current slot number gets disclosed on-chain.
+export circuit checkIn(): [] {
+  assert(eventState == EventState.OPEN, "Event is not accepting check-ins");
+  assert(attendeeCount as Field < capacity as Field, "Event is at capacity");
+
+  const commitment = disclose(
+    attendeeCommitment(secretCode(), attendeeCount as Field as Bytes<32>)
+  );
+
+  lastCheckIn = commitment;
+  attendeeCount.increment(1);
+}
+
+// Organizer-only action: closes the event to further check-ins.
+// (Kept simple for Level 1 — access control on this circuit is a
+// natural Level 2/3 extension, noted in the README.)
+export circuit closeEvent(): [] {
+  assert(eventState == EventState.OPEN, "Event is already closed");
+  eventState = EventState.CLOSED;
+}
+
+// Builds a domain-separated commitment from a secret code and the
+// current slot number, so the same code produces a different, unlinkable
+// commitment every time it's used.
+export circuit attendeeCommitment(code: Bytes<32>, slot: Bytes<32>): Bytes<32> {
+  return persistentHash<Vector<3, Bytes<32>>>(
+    [pad(32, "checkin:commit:"), slot, code]
+  );
+}

@@ -1,0 +1,9 @@
+node_modules/
+dist/
+*.log
+.DS_Store
+.env
+
+# NOTE: src/managed/ is intentionally NOT ignored.
+# The Level 1 checklist requires the generated managed/ directory
+# (circuits + keys) to be present in the repo, so it's committed on purpose.
