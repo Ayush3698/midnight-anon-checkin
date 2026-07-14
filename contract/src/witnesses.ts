@@ -1,5 +1,5 @@
 import { Ledger } from "./managed/checkin/contract/index.js";
-import { WitnessContext } from "@midnight-ntwrk/midnight-js-protocol/compact-runtime";
+import { WitnessContext } from "@midnight-ntwrk/compact-runtime";
 
 // Private, off-chain state for a single attendee. This never touches
 // the public ledger — it lives only on the user's own machine.

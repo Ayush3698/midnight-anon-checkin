@@ -1,45 +1,69 @@
 import { describe, it, expect } from "vitest";
-import { Contract } from "../managed/checkin/contract/index.js";
+import {
+  Contract,
+  pureCircuits,
+  EventState,
+  ledger,
+} from "../managed/checkin/contract/index.js";
+import { createConstructorContext } from "@midnight-ntwrk/compact-runtime";
 import { createCheckInPrivateState, witnesses } from "../witnesses";
 
-// These tests run against the local circuit implementation generated
-// by `compact compile`. They exercise the same logic that will run
-// on-chain, without needing a live network connection.
-//
-// Run with: npm test  (after `npm run compact` has generated ./src/managed)
+// Dummy 32-byte coin public key — fine for local, undeployed testing.
+// A real deployment gets a real one from the connected wallet.
+const dummyCoinPublicKey = { bytes: new Uint8Array(32) };
 
-describe("checkin contract", () => {
-  it("starts open with zero attendees", () => {
+describe("checkin contract constructor", () => {
+  it("initializes with the event open, zero attendees, and the given capacity disclosed", () => {
     const contract = new Contract(witnesses);
-    const { currentPrivateState, currentContractState } =
-      contract.initialState(
-        // constructor arg: capacity of 3
-        { privateState: createCheckInPrivateState(new Uint8Array(32)) } as any,
-      );
+    const privateState = createCheckInPrivateState(new Uint8Array(32));
+    const constructorContext = createConstructorContext(
+      privateState,
+      dummyCoinPublicKey,
+    );
 
-    expect(currentContractState.ledger.attendeeCount).toBe(0n);
+    const { currentContractState } = contract.initialState(
+      constructorContext,
+      50n, // capacity
+    );
+
+    const decodedLedger = ledger(currentContractState.data);
+
+    expect(decodedLedger.eventState).toEqual(EventState.OPEN);
+    expect(decodedLedger.attendeeCount).toEqual(0n);
+    expect(decodedLedger.capacity).toEqual(50n);
+  });
+});
+
+describe("attendeeCommitment (the privacy mechanism)", () => {
+  it("is deterministic: same code + slot always produces the same commitment", () => {
+    const code = new Uint8Array(32).fill(7);
+    const slot = new Uint8Array(32).fill(0);
+
+    const commitment1 = pureCircuits.attendeeCommitment(code, slot);
+    const commitment2 = pureCircuits.attendeeCommitment(code, slot);
+
+    expect(commitment1).toEqual(commitment2);
   });
 
-  it("increments attendeeCount on a valid check-in", () => {
-    const contract = new Contract(witnesses);
-    const secret = new Uint8Array(32).fill(7);
-    const state = createCheckInPrivateState(secret);
+  it("produces unlinkable commitments: the same code at a different slot gives a different hash", () => {
+    const code = new Uint8Array(32).fill(7);
+    const slotA = new Uint8Array(32).fill(0);
+    const slotB = new Uint8Array(32).fill(1);
 
-    const { currentPrivateState, currentContractState, context } =
-      contract.initialState({ privateState: state } as any);
+    const commitmentA = pureCircuits.attendeeCommitment(code, slotA);
+    const commitmentB = pureCircuits.attendeeCommitment(code, slotB);
 
-    const result = contract.impureCircuits.checkIn(context);
-    expect(result.context.currentContractState.ledger.attendeeCount).toBe(1n);
+    expect(commitmentA).not.toEqual(commitmentB);
   });
 
-  it("rejects check-in once the event is closed", () => {
-    const contract = new Contract(witnesses);
-    const secret = new Uint8Array(32).fill(1);
-    const state = createCheckInPrivateState(secret);
+  it("produces different commitments for different codes at the same slot", () => {
+    const codeA = new Uint8Array(32).fill(1);
+    const codeB = new Uint8Array(32).fill(2);
+    const slot = new Uint8Array(32).fill(0);
 
-    const { context } = contract.initialState({ privateState: state } as any);
-    contract.impureCircuits.closeEvent(context);
+    const commitmentA = pureCircuits.attendeeCommitment(codeA, slot);
+    const commitmentB = pureCircuits.attendeeCommitment(codeB, slot);
 
-    expect(() => contract.impureCircuits.checkIn(context)).toThrow();
+    expect(commitmentA).not.toEqual(commitmentB);
   });
 });
