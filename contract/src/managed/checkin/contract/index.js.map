@@ -1,0 +1,8 @@
+{
+  "version": 3,
+  "file": "index.js",
+  "sourceRoot": "../../../../",
+  "sources": ["src/checkin.compact", "compiler/standard-library.compact"],
+  "names": [],
+  "mappings": ";;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;EAiBA;;;;;;;;;;;;;MAcA,AAAA,OASC;;;;;;;;;;;;;;;;;;;;;;OAAA;MAKD,AAAA,UAGC;;;;;;;;;;;;;;;;;;;;;;OAAA;MAKD,AAAA,kBAIC;;OAAA;;;;;;;;;;GApCA;EAJD;;;;;UAAY,cAAsB;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;IALlC;;;;;;;;;yEAAqC;IACrC;;;;;;;;;yEAAqC;IACrC;;;;;;;;;yEAAqC;IACrC;;;;;;;;;yEAAiC;IAG/B;;;;;;;;;yEAAU;UACV,KAAa;IAAb;;;;;;;;;;6FAAA,KAAa;;;;wEAAA;IACb;;;;;;;2HAAoB,cAAY;;yEAAxB;;;;;;;GACT;ECrBD,AAAA,kBAAA;oEAAA;;;EDyBA,AAAA,aAAgC;;0DAAhC,UAAgC;;;;;;;;;;;;;;GAAA;EAMhC,AAAA,UASC;oDARQ;;;;;;;;;;;yHAAU;;;;QACV,GAAgD;2DAAhD;;;;;;;;;;;gIAAa;6BAAb,GAAgD;;qDAApB;;;;;;;;;;;0HAAQ;;UACrC,YAEL;;;iHADkC;;;;;;;;;;;sLAAa;;IAGhD;;;;;;;2HAAc,YAAU;;yEAAb;UACX,KAAa;IAAb;;;;;;;;;;6FAAA,KAAa;;;;wEAAA;;GACd;EAKD,AAAA,aAGC;oDAFQ;;;;;;;;;;;yHAAU;;;;IACjB;;;;;;;;;yEAAU;;GACX;EAKD,AAAA,qBAIC,CAJiC,MAAe,EAAE,MAAe;;mCAEjC,MAAI;mCAAE,MAAI;GAE1C;;;;;;;;;;;;;;;;IA7CD;qCAAA;;;;;;;;;;;0GAAqC;KAAA;IACrC;qCAAA;;;;;;;;;;;0GAAqC;KAAA;IACrC;qCAAA;;;;;;;;;;;0GAAqC;KAAA;IACrC;qCAAA;;;;;;;;;;;0GAAiC;KAAA;;;;;;;;EAsCjC,AAAA,kBAIC;;;;UAJiC,MAAe;UAAE,MAAe;;;;;;;;;;;;;;;gDAAhC,MAAe,EAAE,MAAe;GAIjE;;;;"
+}

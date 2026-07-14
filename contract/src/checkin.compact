@@ -18,7 +18,7 @@ export ledger capacity: Uint<32>;
 constructor(maxAttendees: Uint<32>) {
   eventState = EventState.OPEN;
   attendeeCount.increment(0);
-  capacity = maxAttendees;
+  capacity = disclose(maxAttendees);
 }
 
 // The attendee's secret code never leaves their own machine.
@@ -31,8 +31,7 @@ witness secretCode(): Bytes<32>;
 // the code + current slot number gets disclosed on-chain.
 export circuit checkIn(): [] {
   assert(eventState == EventState.OPEN, "Event is not accepting check-ins");
-  assert(attendeeCount as Field < capacity as Field, "Event is at capacity");
-
+  assert(attendeeCount as Uint<64> < capacity as Uint<64>, "Event is at capacity");
   const commitment = disclose(
     attendeeCommitment(secretCode(), attendeeCount as Field as Bytes<32>)
   );
